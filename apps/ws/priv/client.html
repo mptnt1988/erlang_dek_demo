@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script>
+     $(document).ready(init);
+
+     function init() {
+         if (!("WebSocket" in window)) {
+             $('#status').append('<p><span style="color: red;">Your web browser does not support WebSocket</span></p>');
+             $("#navigation").hide();
+         } else {
+             $('#status').append('<p><span style="color: green;">Your web browser support WebSocket</span></p>');
+             main();
+         };
+     };
+
+     function main() {
+         var WebSocket = window.WebSocket || window.MozWebSocket;
+         var wsURL = "ws://" + window.location.host + "/websocket";
+         socket = new WebSocket(wsURL);
+         // wait for socket to open
+         socket.onopen = function () {
+             $('input#message').on('keypress', function (event) {
+                 if (event.which == 13) {
+                     event.preventDefault();
+                     if (socket.readyState == socket.OPEN) {
+                         var msg = $(this).val();
+                         socket.send(msg);
+                     }
+                     $(this).val("");
+                 }
+             });
+             socket.onmessage = function (msg)
+             {
+                 var message = msg.data;
+                 var html = $('div#echo').html() + message + "<br>\n";
+                 $('div#echo').html(html);
+             }
+         }
+     };
+    </script>
+  </head>
+  <body>
+    WELCOME TO DEK DEMO APP<br>
+    WE ONLY HAVE AN ECHO SERVER NOW T____T <br>
+    <div id="status"></div>
+    <div id="navigation">
+      Client: <input type="text" id="message"><br>
+      Server: <div id="echo"></div><br>
+    </div>
+  </body>
+</html>
