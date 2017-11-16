@@ -5,7 +5,10 @@
   {mod, { dek_demo_app, []}},
   {applications,
    [kernel,
-    stdlib
+    stdlib,
+    cowboy,
+    lager,
+    ws
    ]},
   {env,[]},
   {modules, []},
