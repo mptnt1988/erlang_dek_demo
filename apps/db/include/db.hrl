@@ -1,0 +1,3 @@
+-define(TABLES_DEF, #{user => [username, password]}).
+-define(TABLES, maps:keys(?TABLES_DEF)).
+-define(FIELDS(Table), maps:get(Table, ?TABLES_DEF)).
