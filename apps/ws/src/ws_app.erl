@@ -18,7 +18,7 @@ start(_StartType, _StartArgs) ->
     application:ensure_all_started(cowboy),
     Routes = define_routes(),
     Dispatch = cowboy_router:compile([{'_', Routes}]),
-    {ok, _} = cowboy:start_clear(http,
+    {ok, _} = cowboy:start_clear(ws_name,
                                  [{port, 8888}],
                                  #{env => #{dispatch => Dispatch}}),
     ws_sup:start_link().
@@ -31,5 +31,4 @@ stop(_State) ->
 %% Internal functions
 %%====================================================================
 define_routes() ->
-    [{"/", cowboy_static, {priv_file, ws, "client.html"}},
-     {"/websocket", ws_handler, []}].
+    [{"/websocket", ws_handler, []}].

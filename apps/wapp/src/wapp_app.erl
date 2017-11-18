@@ -1,9 +1,9 @@
 %%%-------------------------------------------------------------------
-%% @doc dek_demo public API
+%% @doc wapp public API
 %% @end
 %%%-------------------------------------------------------------------
 
--module(dek_demo_app).
+-module(wapp_app).
 
 -behaviour(application).
 
@@ -15,8 +15,13 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    dek_demo_lib:start_apps([lager, wapp, ws, db]),
-    dek_demo_sup:start_link().
+    application:ensure_all_started(cowboy),
+    Routes = define_routes(),
+    Dispatch = cowboy_router:compile([{'_', Routes}]),
+    {ok, _} = cowboy:start_clear(wapp_name,
+                                 [{port, 8080}],
+                                 #{env => #{dispatch => Dispatch}}),
+    wapp_sup:start_link().
 
 %%--------------------------------------------------------------------
 stop(_State) ->
@@ -25,3 +30,5 @@ stop(_State) ->
 %%====================================================================
 %% Internal functions
 %%====================================================================
+define_routes() ->
+    [{"/", cowboy_static, {priv_file, wapp, "client.html"}}].

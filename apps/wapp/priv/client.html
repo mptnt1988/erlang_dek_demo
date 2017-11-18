@@ -17,7 +17,7 @@
 
      function main() {
          var WebSocket = window.WebSocket || window.MozWebSocket;
-         var wsURL = "ws://" + window.location.host + "/websocket";
+         var wsURL = "ws://" + window.location.hostname + ":8888/websocket";
          socket = new WebSocket(wsURL);
          // wait for socket to open
          socket.onopen = function () {
