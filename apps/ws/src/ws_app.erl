@@ -15,6 +15,7 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
+    application:ensure_all_started(cowboy),
     Routes = define_routes(),
     Dispatch = cowboy_router:compile([{'_', Routes}]),
     {ok, _} = cowboy:start_clear(http,
