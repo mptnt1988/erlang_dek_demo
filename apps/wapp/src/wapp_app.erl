@@ -31,4 +31,5 @@ stop(_State) ->
 %% Internal functions
 %%====================================================================
 define_routes() ->
-    [{"/", cowboy_static, {priv_file, wapp, "client.html"}}].
+    [{"/", cowboy_static, {priv_file, wapp, "client.html"}},
+     {"/[...]", cowboy_static, {priv_dir, wapp, ""}}].
