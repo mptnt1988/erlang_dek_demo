@@ -10,7 +10,7 @@
          terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--define(INC, 1).
+-define(BASE, 2).
 
 -record(state, {count = 0}).
 
@@ -32,11 +32,11 @@ init([]) ->
     {ok, #state{}}.
 
 handle_call(get_inc, _From, State = #state{count = Count}) ->
-    Reply = Count + ?INC,
-    {reply, Reply, State#state{count = Count + ?INC}};
+    Reply = Count + ?BASE,
+    {reply, Reply, State#state{count = Count + ?BASE}};
 handle_call(get_dec, _From, State = #state{count = Count}) ->
-    Reply = Count - ?INC,
-    {reply, Reply, State#state{count = Count - ?INC}};
+    Reply = Count - ?BASE,
+    {reply, Reply, State#state{count = Count - ?BASE}};
 handle_call(_Request, _From, State) ->
     Reply = ok,
     {reply, Reply, State}.

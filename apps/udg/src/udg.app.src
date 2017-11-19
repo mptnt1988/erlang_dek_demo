@@ -1,6 +1,6 @@
 {application, udg,
  [{description, "An DEMO app for upgrade-downgrade"},
-  {vsn, "0.1.0"},
+  {vsn, "0.2.0"},
   {registered, []},
   {mod, { udg_app, []}},
   {applications,
