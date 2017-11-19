@@ -1,21 +1,65 @@
 -module(db_lib).
--export([install/1]).
+-export([init/1,
+         cleanup/0,
+         change_config/2]).
 
 -include("db.hrl").
 
-install(Nodes) ->
-    ok = create_schema(Nodes),
-    rpc:multicall(Nodes, mnesia, start, []),
-    create_tables(Nodes),
-    rpc:multicall(Nodes, mnesia, stop, []).
+init(master) ->
+    Node = [node()],
+    ok = create_schema(Node),
+    ok = mnesia:start(),
+    ok = create_table(Node);
+init(client) ->
+    cleanup(),
+    ok = mnesia:start().
+
+cleanup() ->
+    Node = [node()],
+    stopped = mnesia:stop(),
+    ok = mnesia:delete_schema(Node).
+
+change_config(master, Client) ->
+    {ok, _} = mnesia:change_config(extra_db_nodes, nodes()),
+    ok = change_table_copy_type(Client);
+change_config(client, Master) ->
+    Tabs = mnesia:system_info(tables),
+    TabInfos = [{T, mnesia:table_info(T, where_to_commit)} || T <- Tabs],
+    Fun = fun({Table, List}) ->
+                  add_table_copy(Table, List, Master)
+          end,
+    lists:foreach(Fun, TabInfos).
+
+change_table_copy_type(Client) ->
+    case catch mnesia:change_table_copy_type(schema, Client, disc_copies) of
+        {atomic, ok} ->
+            lager:info("Change table copy type done."),
+            ok;
+        {aborted, {already_exists, schema, Client, disc_copies}} ->
+            lager:info("Change table copy type already done before."),
+            ok;
+        R ->
+            lager:error("Problem when changing table copy type: ~p",
+                        [[{?MODULE, ?LINE}, R]]),
+            nok
+    end.
+
+add_table_copy(Table, List, Master) ->
+    case lists:keysearch(node(), 1, List) of
+        {value, _} ->
+            ok;
+        false ->
+            {value, {Master, Type}} = lists:keysearch(Master, 1, List),
+            mnesia:add_table_copy(Table, node(), Type)
+    end.
 
 create_schema(Nodes) ->
     case catch mnesia:create_schema(Nodes) of
         ok ->
-            lager:info("Mnesia schema created."),
+            lager:info("Mnesia schema created.", []),
             ok;
         {error, {ErrNode, {already_exists, ErrNode}}} ->
-            lager:info("Mnesia schema already exists."),
+            lager:info("Mnesia schema already exists.", []),
             ok;
         R ->
             lager:error("Problem with creating mnesia schema: ~p~n",
@@ -23,16 +67,27 @@ create_schema(Nodes) ->
             nok
     end.
 
-create_tables(Nodes) ->
+create_table(Nodes) ->
     case mnesia:system_info(tables) of
         [schema] ->
-            [create_table(Table, Nodes) || Table <- ?TABLES];
+            [ok = create_table(Table, Nodes) || Table <- ?TABLES],
+            ok;
         _Tables ->
             ok
     end.
 
 create_table(Table, Nodes) ->
     Fields = ?FIELDS(Table),
-    {atomic, ok} = mnesia:create_table(Table,
-                                       [{attributes, Fields},
-                                        {disc_copies, Nodes}]).
+    Attrs = [{disc_copies, Nodes}, {attributes, Fields}],
+    case catch mnesia:create_table(Table, Attrs) of
+        {atomic, ok} ->
+            lager:info("Table ~p is created.", [Table]),
+            ok;
+        {aborted, {already_exists, Table}} ->
+            lager:info("Table ~p is already existed.", [Table]),
+            ok;
+        R ->
+            lager:error("Problem with creating table: ~p~n",
+                        [[{?MODULE, ?LINE}, R]]),
+            nok
+    end.

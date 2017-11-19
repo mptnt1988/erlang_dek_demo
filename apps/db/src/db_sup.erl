@@ -28,8 +28,14 @@ start_link() ->
 
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
-    {ok, { {one_for_all, 0, 1}, []} }.
+    Child = child(db_server),
+    {ok, { {one_for_all, 0, 1}, [Child]} }.
 
 %%====================================================================
 %% Internal functions
 %%====================================================================
+child(Name) ->
+    child(Name, []).
+
+child(Name, Args) ->
+    {Name, {Name, start_link, Args}, permanent, 5000, worker, [Name]}.

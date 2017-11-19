@@ -7,8 +7,6 @@
 
 -behaviour(application).
 
--include("db.hrl").
-
 %% Application callbacks
 -export([start/2, stop/1]).
 
@@ -17,14 +15,12 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    db_lib:install([node() | nodes()]),
-    mnesia:start(),
-    ok = mnesia:wait_for_tables(?TABLES, 5000),
+    ok = application:ensure_started(lager),
     db_sup:start_link().
 
 %%--------------------------------------------------------------------
 stop(_State) ->
-    ok.
+    ok = application:stop(lager).
 
 %%====================================================================
 %% Internal functions
