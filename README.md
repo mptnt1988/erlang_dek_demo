@@ -17,4 +17,4 @@ Server side:
 
 In web browser, access:
 
-    http://<ip/host>:8888
+    http://<ip/host>:8080

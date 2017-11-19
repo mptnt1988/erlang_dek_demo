@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="shortcut icon" href="public/images/dekfavicon.ico">
+    <title>DEK Demo</title>
+    <script src="public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="public/js/register.js"></script>
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="main">
+        <form class="form" method="post" action="register" onsubmit="return validateForm()">
+          <h2>Registration</h2>
+          <label>Username :</label>
+          <input type="text" name="usr" id="uname"><br>
+          <label>Display name :</label>
+          <input type="text" name="name" id="dname"><br>
+          <label>Password :</label>
+          <input type="password" name="pwd" id="password"><br>
+          <label>Confirm Password :</label>
+          <input type="password" name="cpwd" id="cpassword"><br>
+          <input type="submit" value="Register">
+        </form>
+      </div>
+
+  </body>
+</html>

@@ -20,7 +20,10 @@ start(_StartType, _StartArgs) ->
     Dispatch = cowboy_router:compile([{'_', Routes}]),
     {ok, _} = cowboy:start_clear(wapp_name,
                                  [{port, 8080}],
-                                 #{env => #{dispatch => Dispatch}}),
+                                 #{env => #{dispatch => Dispatch},
+                                   middlewares => [cowboy_router,
+                                                   wapp_middleware,
+                                                   cowboy_handler]}),
     wapp_sup:start_link().
 
 %%--------------------------------------------------------------------
@@ -31,5 +34,20 @@ stop(_State) ->
 %% Internal functions
 %%====================================================================
 define_routes() ->
-    [{"/", cowboy_static, {priv_file, wapp, "client.html"}},
-     {"/[...]", cowboy_static, {priv_dir, wapp, ""}}].
+    PublicConstraints =
+        fun(_, V) when V == <<"js">> orelse V == <<"images">> -> {ok, V};
+           (_, _) -> {error, public_resources_not_found}
+        end,
+    [%% By pass middleware for public resources request
+     {"/public/:res_type/[...]",
+      [{res_type, PublicConstraints}],
+      cowboy_static,
+      #{bypass_middleware => true,
+        opts => fun(Bindings) ->
+                        ResType = maps:get(res_type, Bindings),
+                        {priv_dir, wapp, <<"public/", ResType/binary>>}
+                end}},
+     {"/login", wapp_session, []},
+     {"/logout", wapp_session, []},
+     {"/register", wapp_register, []},
+     {"/[...]", wapp_handler, []}].
