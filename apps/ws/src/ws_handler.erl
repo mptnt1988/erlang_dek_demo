@@ -9,6 +9,7 @@ init(Req, State) ->
     {cowboy_websocket, Req, State}.
 
 websocket_init(State) ->
+    schedule_notify_user(),
     {reply, {text, <<"Hello there!!!">>}, State}.
 
 websocket_handle({text, Msg}, State) ->
@@ -17,5 +18,13 @@ websocket_handle({text, Msg}, State) ->
 websocket_handle(_Data, State) ->
     {ok, State}.
 
-websocket_info(_Info, State) ->
+websocket_info({notify_user, Msg}, State) ->
+    schedule_notify_user(),
+    {reply, {text, Msg}, State};
+websocket_info(Info, State) ->
     {ok, State}.
+
+schedule_notify_user() ->
+    Msg = <<"Hey!!! I just want to disturb: ">>,
+    Num = integer_to_binary(udg_state:get(inc)),
+    timer:send_after(1000, {notify_user, <<Msg/binary, Num/binary>>}).
