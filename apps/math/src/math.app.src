@@ -1,12 +1,11 @@
-{application, udg,
- [{description, "An DEMO app for upgrade-downgrade"},
-  {vsn, "0.2.0"},
+{application, math,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
   {registered, []},
-  {mod, { udg_app, []}},
+  {mod, { math_app, []}},
   {applications,
    [kernel,
-    stdlib,
-    lager
+    stdlib
    ]},
   {env,[]},
   {modules, []},

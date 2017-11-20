@@ -66,9 +66,12 @@ handle_info(_Info, State) ->
 terminate(_Reason, State) ->
     case State#state.master == node() of
         true ->
-            Nodes = nodes(),
-            Msg = {master_assign, hd(Nodes)},
-            gen_server:multi_call(Nodes, ?SERVER, Msg);
+            case nodes() of
+                [] -> ok;
+                Nodes ->
+                    Msg = {master_assign, hd(Nodes)},
+                    gen_server:multi_call(Nodes, ?SERVER, Msg)
+            end;
         false ->
             ok
     end,

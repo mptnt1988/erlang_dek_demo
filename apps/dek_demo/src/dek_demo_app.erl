@@ -15,7 +15,7 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    dek_demo_lib:start_apps([lager, wapp, ws, db]),
+    dek_demo_lib:start_apps([lager, wapp, ws, db, math]),
     dek_demo_sup:start_link().
 
 %%--------------------------------------------------------------------

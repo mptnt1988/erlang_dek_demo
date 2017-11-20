@@ -1,9 +1,9 @@
 %%%-------------------------------------------------------------------
-%% @doc udg top level supervisor.
+%% @doc math top level supervisor.
 %% @end
 %%%-------------------------------------------------------------------
 
--module(udg_sup).
+-module(math_sup).
 
 -behaviour(supervisor).
 
@@ -28,8 +28,8 @@ start_link() ->
 
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
-    Child = child(udg_state),
-    {ok, { {one_for_all, 0, 1}, [Child]} }.
+    Child = child(math_server),
+    {ok, { {one_for_one, 5, 5000}, [Child]} }.
 
 %%====================================================================
 %% Internal functions
