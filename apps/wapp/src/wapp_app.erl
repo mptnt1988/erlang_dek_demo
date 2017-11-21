@@ -36,6 +36,7 @@ stop(_State) ->
 define_routes() ->
     PublicConstraints =
         fun(_, V) when V == <<"js">> orelse V == <<"images">> -> {ok, V};
+           (_, V) when V == <<"css">> -> {ok, V};
            (_, _) -> {error, public_resources_not_found}
         end,
     [%% By pass middleware for public resources request

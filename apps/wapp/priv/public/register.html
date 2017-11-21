@@ -2,27 +2,26 @@
 <html>
   <head>
     <link rel="shortcut icon" href="public/images/dekfavicon.ico">
+    <link rel='stylesheet prefetch' href='http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css'>
+    <link rel="stylesheet" href="public/css/login_style.css">
     <title>DEK Demo</title>
     <script src="public/js/jquery.min.js"></script>
     <script type="text/javascript" src="public/js/register.js"></script>
   </head>
   <body>
 
-    <div class="container">
-      <div class="main">
-        <form class="form" method="post" action="register" onsubmit="return validateForm()">
-          <h2>Registration</h2>
-          <label>Username :</label>
-          <input type="text" name="usr" id="uname"><br>
-          <label>Display name :</label>
-          <input type="text" name="name" id="dname"><br>
-          <label>Password :</label>
-          <input type="password" name="pwd" id="password"><br>
-          <label>Confirm Password :</label>
-          <input type="password" name="cpwd" id="cpassword"><br>
-          <input type="submit" value="Register">
-        </form>
-      </div>
+    <div class="wrapper">
+      <form class="form-signin" action="register" method="post" onsubmit="return validateForm()">
+        <h2 class="form-signin-heading">Registration</h2>
+        <input type="text" class="form-control" name="usr" id="uname" placeholder="User Name" required="" autofocus="" />
+        <input type="text" class="form-control" name="name" id="dname" placeholder="Display Name" required="" autofocus="" />
+        <input type="password" class="form-control" name="pwd" id="password" placeholder="Password" required="" autofocus="" />
+        <input type="password" class="form-control" name="cpwd" id="cpassword" placeholder="Confirm Password" required="" autofocus="" style="margin-bottom: 20px"/>
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit" value="Register">Register</button>
+
+      </form>
+    </div>
 
   </body>
 </html>

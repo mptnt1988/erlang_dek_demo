@@ -7,6 +7,7 @@
 
 init(master) ->
     Node = [node()],
+    stopped = mnesia:stop(),
     ok = create_schema(Node),
     ok = mnesia:start(),
     ok = create_table(Node);

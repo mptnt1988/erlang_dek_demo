@@ -2,21 +2,26 @@
 <html>
   <head>
     <link rel="shortcut icon" href="public/images/dekfavicon.ico">
+    <link rel='stylesheet prefetch' href='http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css'>
+    <link rel="stylesheet" href="public/css/login_style.css">
     <title>DEK Demo</title>
   </head>
   <body>
 
-    <a href="register">Register</a>
-    <h2>Login</h2>
-    <form action="login" method="post">
-      User name:<br>
-      <input type="text" name="usr">
-      <br>
-      User password:<br>
-      <input type="password" name="pwd">
-      <br>
-      <input type="submit" value="Submit">
-    </form>
+    <div class="wrapper">
+      <form class="form-signin" action="login" method="post">
+        <h2 class="form-signin-heading">Login</h2>
+
+        <input type="text" class="form-control" name="usr" placeholder="User Name" required="" autofocus="" />
+        <input type="password" class="form-control" name="pwd" placeholder="Password" required="" style="margin-bottom: 20px"/>
+
+        <label class="form-signin-heading">
+          <a href="register">Register</a>
+        </label>
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit" value="Submit">Login</button>
+      </form>
+    </div>
 
   </body>
 </html>
