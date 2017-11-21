@@ -5,7 +5,14 @@
   {mod, { dek_demo_app, []}},
   {applications,
    [kernel,
-    stdlib
+    stdlib,
+    wapp,
+    ws,
+    db,
+    math,
+    observer,
+    wx,
+    runtime_tools
    ]},
   {env,[]},
   {modules, []},
