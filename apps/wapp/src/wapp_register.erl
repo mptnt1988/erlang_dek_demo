@@ -13,7 +13,7 @@ init(#{path := <<"/register">>} = Req0, State) ->
 do_register(#{<<"usr">> := User, <<"name">> := Name,
               <<"pwd">> := Pwd, <<"cpwd">> := Pwd}) ->
     case dbI:find_user(User) of
-        {User, _Pwd, _Name} -> nok;
+        {User, _Pwd, _Name, _Sid, _Node} -> nok;
         nothing -> dbI:add_user(User, Pwd, Name)
     end;
 do_register(_) -> nok.

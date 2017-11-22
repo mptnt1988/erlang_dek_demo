@@ -3,10 +3,12 @@
 
 init(#{path := <<"/login">>} = Req0, State) ->
     {ok, Body} = wapp_lib:read_body(Req0, <<>>),
-    LoginInfo = wapp_lib:parse_qs_body(Body),
+    LoginInfo = #{<<"usr">> := User} = wapp_lib:parse_qs_body(Body),
     Req1 = case do_login(LoginInfo) of
                ok ->
                    SessionID = generate_session_id(),
+                   dbI:update_user(User, #{sessionId => SessionID,
+                                           node => node()}),
                    Req0_1 = cowboy_req:set_resp_cookie(<<"sessionid">>,
                                                        SessionID,
                                                        Req0),
@@ -15,7 +17,12 @@ init(#{path := <<"/login">>} = Req0, State) ->
                    wapp_lib:redirect_to("login", Req0)
            end,
     {ok, Req1, State};
-init(#{path := <<"/logout">>} = Req0, State) ->
+init(#{path := <<"/logout">>,
+       headers := #{<<"cookie">> := Session}} = Req0, State) ->
+    #{<<"sessionid">> := SessionID} = wapp_lib:parse_qs_body(Session),
+    dbI:update_user(#{sessionId => SessionID},
+                    #{sessionId => undefined,
+                      node => undefined}),
     Req1 = cowboy_req:set_resp_cookie(<<"sessionid">>, <<"">>,
                                       Req0, #{max_age => 0}),
     Req2 = wapp_lib:redirect_to("login", Req1),
@@ -39,7 +46,7 @@ to_digit(N) -> $a + N - 10.
 
 do_login(#{<<"usr">> := User, <<"pwd">> := Pwd}) ->
     case dbI:find_user(User) of
-        {User, Pwd, _Name} -> ok;
-        nothing -> nok
+        {User, Pwd, _Name, _Sid, undefined} -> ok;
+        _ -> nok
     end;
 do_login(_) -> nok.
