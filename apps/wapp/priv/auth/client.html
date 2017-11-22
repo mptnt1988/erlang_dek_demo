@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="shortcut icon" href="public/images/dekfavicon.ico">
     <title>DEK Demo</title>
-    <script src="public/js/jquery.min.js"></script>
+    <link rel="shortcut icon" href="public/images/dekfavicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="public/css/jquery-ui.css">
+    <link rel="stylesheet" href="public/css/style.css">
+    <script src="public/js/jquery-1.12.4.js"></script>
+    <script src="public/js/jquery-ui.js"></script>
+    <script>
+     $(function () {
+         $("#tabs").tabs();
+     });
+    </script>
     <script>
      $(document).ready(init);
 
@@ -35,22 +44,64 @@
              });
              socket.onmessage = function (msg)
              {
-                 var message = msg.data;
-                 var html = $('div#echo').html() + message + "<br>\n";
-                 $('div#echo').html(html);
+                 var message = $.parseJSON(msg.data);
+                 var dest = message.dest;
+                 var html = "<b>***</b> " + message.msg + "<br>\n" + $('div#' + dest).html();
+                 $('div#' + dest).html(html);
              }
          }
      };
+
+     function add_tab () {
+         var num_tabs = $("div#tabs ul li").length + 1;
+         $("div#tabs ul").append(
+             "<li><a href='#tab" + num_tabs + "'>#" + num_tabs + "</a></li>"
+         );
+         $("div#tabs").append(
+             "<div id='tab" + num_tabs + "'>#" + num_tabs + "</div>"
+         );
+         $("div#tabs").tabs("refresh");
+     }
+
+     function remove_tab () {
+         $("a[href='#tabs-1']").closest("li").remove();
+     }
+
     </script>
   </head>
   <body>
     WELCOME TO DEK DEMO APP<br>
-    WE ONLY HAVE AN ECHO SERVER NOW T____T <br>
     <a href="logout">Log out</a>
     <div id="status"></div>
-    <div id="navigation">
-      Client: <input type="text" id="message"><br>
-      Server: <div id="echo"></div><br>
+    <div id="tabs">
+      <ul>
+        <li><a href="#tabs-1">Echo</a></li>
+        <li><a href="#tabs-2">Ping</a></li>
+        <li><a href="#tabs-3">Phu</a></li>
+        <li><a href="#tabs-4">Tien</a></li>
+        <li><a href="#tabs-5">Tuan</a></li>
+      </ul>
+      <div id="tabs-1">
+        <div id="navigation">
+          <h3>Client requests</h3>
+          <input type="text" id="message">
+          <h3>Server replies</h3>
+          <div id="reply"></div>
+        </div>
+      </div>
+      <div id="tabs-2">
+        <div id="ping"></div><br>
+      </div>
+      <div id="tabs-3">
+        <p>Lien Tong Phu</p>
+      </div>
+      <div id="tabs-4">
+        <p>Pham Quang Tien</p>
+      </div>
+      <div id="tabs-5">
+        <p>Tran Nhat Tuan</p>
+      </div>
     </div>
+
   </body>
 </html>

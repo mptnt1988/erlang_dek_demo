@@ -14,15 +14,20 @@ websocket_init(State) ->
 
 websocket_handle({text, Msg}, State) ->
     Prefix = <<"My answer is: ">>,
-    _Result = mathI:do(binary_to_list(Msg)),
-    Answer = <<"...TODO: implementing...">>,
-    {reply, {text, <<Prefix/binary, Answer/binary>>}, State};
+    Result = (catch mathI:do(binary_to_list(Msg))),
+    Answer = format_result(Result),
+    AnswerBin = <<Prefix/binary, Answer/binary>>,
+    Msg2Send = jsx:encode(#{<<"dest">> => <<"reply">>,
+                            <<"msg">> => AnswerBin}),
+    {reply, {text, Msg2Send}, State};
 websocket_handle(_Data, State) ->
     {ok, State}.
 
 websocket_info({notify_user, Msg}, State) ->
     schedule_notify_user(),
-    {reply, {text, Msg}, State};
+    Msg2Send = jsx:encode(#{<<"dest">> => <<"ping">>,
+                            <<"msg">> => Msg}),
+    {reply, {text, Msg2Send}, State};
 websocket_info(_Info, State) ->
     {ok, State}.
 
@@ -30,3 +35,7 @@ schedule_notify_user() ->
     Msg = <<"Hey!!! I just want to disturb: ">>,
     Num = integer_to_binary(udgI:get(inc)),
     timer:send_after(1000, {notify_user, <<Msg/binary, Num/binary>>}).
+
+format_result(R) ->
+    RStr = lists:flatten(io_lib:format("~p", [R])),
+    list_to_binary(RStr).

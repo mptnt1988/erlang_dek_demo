@@ -17,7 +17,7 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    dek_demo_lib:start_apps([cowboy, udg]),
+    dek_demo_lib:start_apps([cowboy, jsx, udg]),
     Routes = define_routes(),
     Dispatch = cowboy_router:compile([{'_', Routes}]),
     Port = case init:get_argument(ws_port) of
