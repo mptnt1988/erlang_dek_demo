@@ -2,6 +2,7 @@
 -export([redirect_to/2]).
 -export([read_body/2]).
 -export([parse_qs_body/1]).
+-export([set_no_browser_cache/1]).
 
 redirect_to(main, Req) -> redirect_to("", Req);
 redirect_to(RelPath,
@@ -31,3 +32,11 @@ parse_qs_body(QsBody) ->
     lists:foldl(fun({Field, Value}, Acc) ->
                         Acc#{Field => Value}
                 end, #{}, QList).
+
+set_no_browser_cache(Req) ->
+    CacheSetting = #{<<"cache-control">> => <<"no-cache,"
+                                              "no-store,"
+                                              "must-revalidate">>,
+                     <<"pragma">> => "no-cache",
+                     <<"expires">> => <<"0">>},
+    cowboy_req:set_resp_headers(CacheSetting, Req).
