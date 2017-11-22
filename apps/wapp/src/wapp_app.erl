@@ -10,6 +10,8 @@
 %% Application callbacks
 -export([start/2, stop/1]).
 
+-define(DEFAULT_PORT, 8080).
+
 %%====================================================================
 %% API
 %%====================================================================
@@ -18,8 +20,14 @@ start(_StartType, _StartArgs) ->
     dek_demo_lib:start_apps([cowboy]),
     Routes = define_routes(),
     Dispatch = cowboy_router:compile([{'_', Routes}]),
+    Port = case init:get_argument(wapp_port) of
+               {ok,[[PortNoStr]]} ->
+                   list_to_integer(PortNoStr);
+               error ->
+                   ?DEFAULT_PORT
+           end,
     {ok, _} = cowboy:start_clear(wapp_name,
-                                 [{port, 8080}],
+                                 [{port, Port}],
                                  #{env => #{dispatch => Dispatch},
                                    middlewares => [cowboy_router,
                                                    wapp_middleware,
