@@ -15,7 +15,7 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    ok = application:ensure_started(lager),
+    dek_demo_lib:start_apps([lager]),
     db_sup:start_link().
 
 %%--------------------------------------------------------------------

@@ -15,7 +15,7 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    application:ensure_all_started(cowboy),
+    dek_demo_lib:start_apps([cowboy]),
     Routes = define_routes(),
     Dispatch = cowboy_router:compile([{'_', Routes}]),
     {ok, _} = cowboy:start_clear(wapp_name,
@@ -35,11 +35,12 @@ stop(_State) ->
 %%====================================================================
 define_routes() ->
     PublicConstraints =
-        fun(_, V) when V == <<"js">> orelse V == <<"images">> -> {ok, V};
-           (_, V) when V == <<"css">> -> {ok, V};
+        fun(_, V = <<"js">>) -> {ok, V};
+           (_, V = <<"images">>) -> {ok, V};
+           (_, V = <<"css">>) -> {ok, V};
            (_, _) -> {error, public_resources_not_found}
         end,
-    [%% By pass middleware for public resources request
+    [%% Bypass middleware for public resources request
      {"/public/:res_type/[...]",
       [{res_type, PublicConstraints}],
       cowboy_static,

@@ -13,18 +13,20 @@ websocket_init(State) ->
     {reply, {text, <<"Hello there!!!">>}, State}.
 
 websocket_handle({text, Msg}, State) ->
-    Prefix = <<"OK, server got: ">>,
-    {reply, {text, <<Prefix/binary, Msg/binary>>}, State};
+    Prefix = <<"My answer is: ">>,
+    _Result = mathI:do(binary_to_list(Msg)),
+    Answer = <<"...TODO: implementing...">>,
+    {reply, {text, <<Prefix/binary, Answer/binary>>}, State};
 websocket_handle(_Data, State) ->
     {ok, State}.
 
 websocket_info({notify_user, Msg}, State) ->
     schedule_notify_user(),
     {reply, {text, Msg}, State};
-websocket_info(Info, State) ->
+websocket_info(_Info, State) ->
     {ok, State}.
 
 schedule_notify_user() ->
     Msg = <<"Hey!!! I just want to disturb: ">>,
-    Num = integer_to_binary(udg_state:get(inc)),
+    Num = integer_to_binary(udgI:get(inc)),
     timer:send_after(1000, {notify_user, <<Msg/binary, Num/binary>>}).

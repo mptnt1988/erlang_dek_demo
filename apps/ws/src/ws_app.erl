@@ -15,7 +15,7 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    application:ensure_all_started(cowboy),
+    dek_demo_lib:start_apps([cowboy, udg]),
     Routes = define_routes(),
     Dispatch = cowboy_router:compile([{'_', Routes}]),
     {ok, _} = cowboy:start_clear(ws_name,
