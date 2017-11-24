@@ -18,17 +18,17 @@
 
      function init() {
          if (!("WebSocket" in window)) {
-             $('#status').append('<p><span style="color: red;">Your web browser does not support WebSocket</span></p>');
+             $('#wsstatus').append('<p><span style="color: red;">Your web browser does not support WebSocket</span></p>');
              $("#navigation").hide();
          } else {
-             $('#status').append('<p><span style="color: green;">Your web browser support WebSocket</span></p>');
+             $('#wsstatus').append('<p><span style="color: green;">Your web browser support WebSocket</span></p>');
              main();
          };
      };
 
      function main() {
          var WebSocket = window.WebSocket || window.MozWebSocket;
-         var wsURL = "ws://" + window.location.hostname + ":8888/websocket";
+         var wsURL = "ws://" + window.location.hostname + ":{{ ws_port }}/websocket";
          socket = new WebSocket(wsURL);
          // wait for socket to open
          socket.onopen = function () {
@@ -46,8 +46,15 @@
              {
                  var message = $.parseJSON(msg.data);
                  var dest = message.dest;
-                 var html = "<b>***</b> " + message.msg + "<br>\n" + $('div#' + dest).html();
-                 $('div#' + dest).html(html);
+                 if (dest == 'ping' || dest == 'reply') {
+                     var html = "<b>***</b> " + message.msg + "<br>\n" + $('div#' + dest).html();
+                     $('div#' + dest).html(html);
+                 }
+                 else if (dest == 'status') {
+                     $('div#wsstatus').html(message.msg + "<br>" + $('div#wsstatus').html());
+                     $('div#status').html("Server process ID is: " + message.math);
+                 }
+                 else console.log(message);
              }
          }
      };
@@ -72,7 +79,7 @@
   <body>
     WELCOME TO DEK DEMO APP<br>
     <a href="logout">Log out</a>
-    <div id="status"></div>
+    <div id="wsstatus"></div>
     <div id="tabs">
       <ul>
         <li><a href="#tabs-1">Echo</a></li>
@@ -83,6 +90,7 @@
       </ul>
       <div id="tabs-1">
         <div id="navigation">
+          <div id="status"></div>
           <h3>Client requests</h3>
           <input type="text" id="message">
           <h3>Server replies</h3>
@@ -90,7 +98,7 @@
         </div>
       </div>
       <div id="tabs-2">
-        <div id="ping"></div><br>
+        <div id="ping" style="overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:50;line-height:16px;max-height:800px;"></div><br>
       </div>
       <div id="tabs-3">
         <p>Lien Tong Phu</p>

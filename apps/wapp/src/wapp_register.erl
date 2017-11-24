@@ -2,6 +2,7 @@
 -export([init/2]).
 
 init(#{path := <<"/register">>} = Req0, State) ->
+    lager:debug("DEBUG: ~p~n~n", [[{?MODULE, ?LINE}]]),
     {ok, Body} = wapp_lib:read_body(Req0, <<>>),
     RegInfo = wapp_lib:parse_qs_body(Body),
     Req1 = case do_register(RegInfo) of
@@ -12,8 +13,13 @@ init(#{path := <<"/register">>} = Req0, State) ->
 
 do_register(#{<<"usr">> := User, <<"name">> := Name,
               <<"pwd">> := Pwd, <<"cpwd">> := Pwd}) ->
-    case dbI:find_user(User) of
-        {User, _Pwd, _Name, _Sid, _Node} -> nok;
-        nothing -> dbI:add_user(User, Pwd, Name)
+    lager:debug("DEBUG: ~p~n~n", [[{?MODULE, ?LINE}]]),
+    case dbI:find_user(#{username => User}) of
+        nothing -> dbI:add_user(#{username => User,
+                                  password => Pwd,
+                                  display_name => Name});
+        _ -> nok
     end;
-do_register(_) -> nok.
+do_register(_) ->
+    lager:debug("DEBUG: ~p~n~n", [[{?MODULE, ?LINE}]]),
+    nok.

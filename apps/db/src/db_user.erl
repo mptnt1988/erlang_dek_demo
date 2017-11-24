@@ -1,31 +1,41 @@
 -module(db_user).
--export([add/3]).
+-export([add/1]).
 -export([find/1]).
 -export([delete/1]).
 -export([update/2]).
+-export([select_ms/2]).
 
 -include("db.hrl").
 
-add(User, Pwd, Name) ->
-    add(User, Pwd, Name, undefined, undefined).
+select_ms(Key, {Guards, Results} = _GRSpec) ->
+    ObjPattern = db_lib:map2rec(?USER_TABLE, Key, '_'),
+    case mnesia:dirty_select(?USER_TABLE, [{ObjPattern, Guards, Results}]) of
+        [] -> nothing;
+        L -> L
+    end.
 
-add(User, Pwd, Name, SId, Node) ->
-    mnesia:dirty_write({?USER_TABLE, User, Pwd, Name, SId, Node}).
+add(UserInfo) ->
+    Rec = db_lib:map2rec(?USER_TABLE, UserInfo, undefined),
+    mnesia:dirty_write(Rec).
 
-find(User) ->
-    case mnesia:dirty_read(?USER_TABLE, User) of
-        [{?USER_TABLE, User, Pwd, Name, SId, Node}] ->
-            {User, Pwd, Name, SId, Node};
+find(Key) ->
+    ObjPattern = db_lib:map2rec(?USER_TABLE, Key, '_'),
+    case mnesia:dirty_match_object(ObjPattern) of
+        [Rec] -> db_lib:rec2map(?USER_TABLE, Rec);
         _ -> nothing
     end.
 
-delete(User) ->
-    mnesia:dirty_delete(?USER_TABLE, User).
+delete(Key) ->
+    ObjPattern = db_lib:map2rec(?USER_TABLE, Key, '_'),
+    case mnesia:dirty_match_object(ObjPattern) of
+        Recs when is_list(Recs) ->
+            [mnesia:dirty_delete_object(Rec) || Rec <- Recs],
+            ok;
+        _ -> ok
+    end.
 
-update(User, KVMap) when is_binary(User) ->
-    update(#{username => User}, KVMap);
-update(Keys, KVMap) when is_map(Keys) ->
-    ObjPattern = db_lib:build_obj_pattern(?USER_TABLE, Keys),
+update(Key, KVMap) ->
+    ObjPattern = db_lib:map2rec(?USER_TABLE, Key, '_'),
     F = fun() ->
                 [Rec] = mnesia:dirty_match_object(ObjPattern),
                 UpdatedRec = db_lib:update_record(?USER_TABLE, Rec, KVMap),

@@ -2,8 +2,9 @@
 -export([init/1,
          cleanup/0,
          change_config/2]).
--export([build_obj_pattern/2]).
 -export([update_record/3]).
+-export([rec2map/2]).
+-export([map2rec/3]).
 
 -include("db.hrl").
 
@@ -95,20 +96,7 @@ create_table(Table, Nodes) ->
             nok
     end.
 
-%% TODO: Refactor below 2 functions
-build_obj_pattern(Table, Keys) when is_map(Keys) ->
-    TabFields = ?FIELDS(Table),
-    NoOfFields = length(TabFields),
-    UnderscoreList = lists:duplicate(NoOfFields, '_'),
-    InitPatternMap = maps:from_list(lists:zip(TabFields, UnderscoreList)),
-    Fun = fun(KeyK, KeyV, Acc) ->
-                  Acc#{KeyK => KeyV}
-          end,
-    PatternMap = maps:fold(Fun, InitPatternMap, Keys),
-    PatternList = [maps:get(X, PatternMap) || X <- TabFields],
-    list_to_tuple([Table | PatternList]).
-
-update_record(Table, Rec, KVMap) when is_map(KVMap) ->
+update_record(Table, Rec, KVMap) ->
     TabFields = ?FIELDS(Table),
     [Table | RecList] = tuple_to_list(Rec),
     RecMap = maps:from_list(lists:zip(TabFields, RecList)),
@@ -118,3 +106,13 @@ update_record(Table, Rec, KVMap) when is_map(KVMap) ->
     UpdatedMap = maps:fold(Fun, RecMap, KVMap),
     UpdatedList = [maps:get(X, UpdatedMap) || X <- TabFields],
     list_to_tuple([Table | UpdatedList]).
+
+map2rec(Table, Map, Default) ->
+    TabFields = ?FIELDS(Table),
+    RecList = [maps:get(X, Map, Default) || X <- TabFields],
+    list_to_tuple([Table | RecList]).
+
+rec2map(Table, Rec) ->
+    TabFields = ?FIELDS(Table),
+    [Table | RecList] = tuple_to_list(Rec),
+    maps:from_list(lists:zip(TabFields, RecList)).

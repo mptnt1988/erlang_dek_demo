@@ -12,19 +12,9 @@ execute(#{bindings := Bindings} = Req,
     {ok, Req, Env#{handler_opts => HandlerOpts(Bindings)}};
 
 %% Cookie in HTTP headers (already logged-in)
-%% => If logout is clicked
-execute(#{path := <<"/logout">>,
-          headers := #{<<"cookie">> := _Cookie}} = Req, Env) ->
+execute(#{headers := #{<<"cookie">> := _Cookie}} = Req, Env) ->
     lager:debug("DEBUG: ~p~n~n", [[{?MODULE, ?LINE}, Req, Env]]),
     {ok, Req, Env};
-%% => Else route to auth/client.html
-execute(#{headers := #{<<"cookie">> := _Cookie}} = Req0, Env) ->
-    lager:debug("DEBUG: ~p~n~n", [[{?MODULE, ?LINE}, Req0, Env]]),
-    Handler = cowboy_static,
-    HandlerOpts = {priv_file, wapp, "auth/client.html"},
-    Req1 = wapp_lib:set_no_browser_cache(Req0),
-    {ok, Req1, Env#{handler => Handler,
-                    handler_opts => HandlerOpts}};
 
 %% Login page
 %% => Return login page

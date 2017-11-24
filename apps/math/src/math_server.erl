@@ -31,6 +31,8 @@ eval_expr(Expr) ->
 %%%===================================================================
 init([]) ->
     process_flag(trap_exit, true),
+    Usrs = wsI:get_all_users(),
+    wsI:broadcast_users(Usrs, {math_update, self()}),
     {ok, #state{}}.
 
 handle_call(eval_history, _From, State) ->
