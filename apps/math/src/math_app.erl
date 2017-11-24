@@ -17,6 +17,7 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
+    dek_demo_lib:start_apps([db, ws]),
     ?MATH = ets:new(?MATH, [named_table, public]),
     true = ets:insert(?MATH, {history, []}),
     math_sup:start_link().
