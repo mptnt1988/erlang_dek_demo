@@ -1,3 +1,3 @@
-:name "dek_demo"
-:node-sname "dek_demo"
+:name "edts_dek_demo"
+:node-sname "edts_dek_demo"
 :lib-dirs '("." "_build/default/lib/")
