@@ -1,4 +1,4 @@
--sname dek_demo
+-name dek_demo@${IP}
 
 -setcookie dek_demo_cookie
 
