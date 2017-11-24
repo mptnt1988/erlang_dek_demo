@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="public/css/jquery-ui.css">
     <link rel="stylesheet" href="public/css/style.css">
+    <link rel="stylesheet" href="public/css/bootstrap.min.css">
+    <link rel="stylesheet" href="public/css/login_style.css">
     <script src="public/js/jquery-1.12.4.js"></script>
     <script src="public/js/jquery-ui.js"></script>
     <script>
@@ -23,7 +25,7 @@
              $('#wsstatus').append('<p><span style="color: red;">Your web browser does not support WebSocket</span></p>');
              $("#navigation").hide();
          } else {
-             $('#wsstatus').append('<p><span style="color: green;">Your web browser support WebSocket</span></p>');
+             /* $('#wsstatus').append('<p><span style="color: green;">Your web browser support WebSocket</span></p>');*/
              main();
          };
      };
@@ -144,9 +146,13 @@
     </script>
   </head>
   <body>
-    WELCOME TO DEK DEMO APP<br>
-    <a href="logout">Log out</a>
-    <div id="wsstatus"></div>
+    <div style="text-align:center;">
+      <h2 class="form-signin-heading">WELCOME TO DEK DEMO APP</h2><br>
+      <label class="form-signin-heading">
+        <a href="logout">Log out</a>
+      </label>
+      <div id="wsstatus"></div><br>
+    </div>
     <div id="tabs">
       <ul>
         <li><a href="#tabs-1">Echo</a></li>
