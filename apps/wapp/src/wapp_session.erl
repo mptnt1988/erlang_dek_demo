@@ -58,7 +58,8 @@ to_digit(N) -> $a + N - 10.
 
 do_login(#{<<"usr">> := User, <<"pwd">> := Pwd}) ->
     case dbI:find_user(#{username => User}) of
-        #{node := undefined} -> ok;
+        #{password := Pwd,
+          node := undefined} -> ok;
         _ -> nok
     end;
 do_login(_) -> nok.
