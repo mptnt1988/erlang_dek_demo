@@ -15,7 +15,9 @@
     </script>
     <script>
      $(document).ready(init);
-
+     // friends is a list of friend->tab
+     var info = {tabs: {id: 2, count: 0, friends: []}};
+     var socket;
      function init() {
          if (!("WebSocket" in window)) {
              $('#wsstatus').append('<p><span style="color: red;">Your web browser does not support WebSocket</span></p>');
@@ -37,7 +39,10 @@
                      event.preventDefault();
                      if (socket.readyState == socket.OPEN) {
                          var msg = $(this).val();
-                         socket.send(msg);
+                         socket.send(JSON.stringify(
+                             {
+                                 msg:msg
+                             }));
                      }
                      $(this).val("");
                  }
@@ -51,27 +56,89 @@
                      $('div#' + dest).html(html);
                  }
                  else if (dest == 'status') {
+                     // Update WS status
                      $('div#wsstatus').html(message.msg + "<br>" + $('div#wsstatus').html());
+                     // Update Echo Math Server status
                      $('div#status').html("Server process ID is: " + message.math);
+                     // Update current user info
+                     info.user = {username: message.user.username, display_name: message.user.display_name};
+                     // Update tabs for other online users
+                     var otherUsers = message.other_users;
+                     for (var x in otherUsers)
+                         add_tab(x, otherUsers[x]);
+                 }
+                 else if (dest == 'math') {
+                     $('div#status').html("Server process ID is: " + message.msg);
+                 }
+                 else if (dest == 'user_online') {
+                     add_tab(message.user.username, message.user.display_name);
+                 }
+                 else if (dest == 'user_offline') {
+                     remove_tab(message.user.username);
+                 }
+                 else if (dest == 'chatting') {
+                     var fromUser = message.from_user;
+                     var msg = message.msg;
+                     var friendInfo = info.tabs.friends.find(x => x.username === fromUser);
+                     var tabId = friendInfo.tab;
+                     var friendDName = friendInfo.display_name;
+                     var tabBoxId = tabId + "_box";
+                     $('#' + tabBoxId).html("<b>" + friendDName + ":</b> " + msg + "<br>" + $('#' + tabBoxId).html());
                  }
                  else console.log(message);
              }
          }
      };
 
-     function add_tab () {
-         var num_tabs = $("div#tabs ul li").length + 1;
+     function add_tab (username, display_name) {
+         // Add and format new tab
+         var numTabs = ++info.tabs.id;
+         var tabId = "tabs-" + numTabs;
          $("div#tabs ul").append(
-             "<li><a href='#tab" + num_tabs + "'>#" + num_tabs + "</a></li>"
+             "<li><a href='#" + tabId + "'>" + display_name + "</a></li>"
          );
+         var tabInputId = tabId + "_input";
+         var tabBoxId = tabId + "_box";
          $("div#tabs").append(
-             "<div id='tab" + num_tabs + "'>#" + num_tabs + "</div>"
+             "<div id='" + tabId + "'>" + display_name + " says hello!!!" + "<br>" +
+             "<input type='text' id='" + tabInputId + "'><br><br>" +
+             "<div id='" + tabBoxId + "'></div>" +
+             "</div>"
          );
          $("div#tabs").tabs("refresh");
+
+         // Add socket sending event
+         $('input#' + tabInputId).on('keypress', function (event) {
+             if (event.which == 13) {
+                 event.preventDefault();
+                 if (socket.readyState == socket.OPEN) {
+                     var msg = $(this).val();
+                     socket.send(JSON.stringify(
+                         {
+                             to:username,
+                             msg:msg
+                         }));
+                     $('#' + tabBoxId).html("<b>" + info.user.display_name + ":</b> " + msg + "<br>" + $('#' + tabBoxId).html());
+                 }
+                 $(this).val("");
+             }
+         });
+
+         // Update info variable
+         info.tabs.friends.push({'username': username,
+                                 'display_name': display_name,
+                                 'tab': tabId});
+         info.tabs.count++;
      }
 
-     function remove_tab () {
-         $("a[href='#tabs-1']").closest("li").remove();
+     function remove_tab (username) {
+         var tabId = info.tabs.friends.find(x => x.username === username).tab;
+         $("a[href='#" + tabId + "']").closest("li").remove();
+         $("div#tabs").tabs("refresh");
+
+         // Update info variable
+         info.tabs.friends = info.tabs.friends.filter(x => x.username !== username);
+         info.tabs.count--;
      }
 
     </script>
@@ -84,9 +151,6 @@
       <ul>
         <li><a href="#tabs-1">Echo</a></li>
         <li><a href="#tabs-2">Ping</a></li>
-        <li><a href="#tabs-3">Phu</a></li>
-        <li><a href="#tabs-4">Tien</a></li>
-        <li><a href="#tabs-5">Tuan</a></li>
       </ul>
       <div id="tabs-1">
         <div id="navigation">
@@ -99,15 +163,6 @@
       </div>
       <div id="tabs-2">
         <div id="ping" style="overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:50;line-height:16px;max-height:800px;"></div><br>
-      </div>
-      <div id="tabs-3">
-        <p>Lien Tong Phu</p>
-      </div>
-      <div id="tabs-4">
-        <p>Pham Quang Tien</p>
-      </div>
-      <div id="tabs-5">
-        <p>Tran Nhat Tuan</p>
       </div>
     </div>
 
